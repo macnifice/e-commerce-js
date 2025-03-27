@@ -48,7 +48,6 @@ const create = async (businessData: BusinessCreationAttributes): Promise<Busines
         businessData.password = await encrypt(businessData.password);
 
         const newBusiness = await db.User.create(businessData);
-        console.log(newBusiness);
         if (newBusiness) {
             await db.Business.create({
                 userId: newBusiness.id,

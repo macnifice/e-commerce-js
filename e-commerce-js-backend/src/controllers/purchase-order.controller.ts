@@ -6,7 +6,7 @@ export const getOrdersByBusinessId = async (req: Request, res: Response): Promis
     try {
         const { id } = req.params;
         const orders = await getByBusinessId(id);
-        res.status(200).json(orders);
+        res.status(200).send(orders);
     }
     catch (error: any) {
         res.status(500).json({ message: error.message });
@@ -29,7 +29,7 @@ export const getOrderByCustomerId = async (req: Request, res: Response): Promise
 export const createOrder = async (req: Request, res: Response): Promise<void> => {
     try {
         const order = await create(req.body);
-        res.status(200).json(order);
+        res.status(201).send(order);
     } catch (error: any) {
         res.status(500).json({ message: error.message });
         return;

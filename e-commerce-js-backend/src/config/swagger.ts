@@ -16,7 +16,16 @@ const options = {
                 url: `http://localhost:${port}`,
                 description: 'Local Development Server'
             }
-        ]
+        ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT'
+                }
+            }
+        }
     },
     apis: ['./src/routes/*.ts'],
 };

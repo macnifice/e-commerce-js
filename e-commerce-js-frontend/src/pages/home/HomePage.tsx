@@ -3,6 +3,7 @@ import { getProducts } from "./service/productService";
 import "./home-page.css";
 import { useAppDispatch } from "../../hooks/hook";
 import { addToCart } from "../../redux/states/cartSlice";
+import { showSnackbar } from "../../redux/states/snackbarSlice";
 // import { useNavigate } from "react-router-dom";
 
 interface Product {
@@ -12,6 +13,10 @@ interface Product {
   description: string;
   stock: number;
   image?: string;
+  business: {
+    name: string;
+    id: string;
+  };
 }
 
 const HomePage = () => {
@@ -41,11 +46,15 @@ const HomePage = () => {
           image: product.image,
           stock: product.stock,
           description: product.description,
+          businessId: Number(product.business.id),
         })
       );
-
-      // Opcional: mostrar notificación o abrir el carrito
-      // También podrías usar tu sistema de notificaciones aquí
+      dispatch(
+        showSnackbar({
+          message: "Producto añadido al carrito",
+          severity: "success",
+        })
+      );
     }
   };
 
@@ -121,6 +130,15 @@ const HomePage = () => {
                       : product.description
                     : "Sin descripción disponible"}
                 </p>
+
+                <div className="product-business-name">
+                  <span>
+                    <strong>Vendido y enviado por:</strong>
+                    {product.business && product.business.name
+                      ? product.business.name
+                      : "Sin negocio disponible"}
+                  </span>
+                </div>
 
                 <div className="product-stock">
                   <span>

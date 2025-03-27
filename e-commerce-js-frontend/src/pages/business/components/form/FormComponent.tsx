@@ -1,5 +1,5 @@
-import { Formik, Form, Field, FormikHelpers } from "formik";
-import { Button } from "@mui/material";
+import { FormikHelpers, useFormik } from "formik";
+import { Button, TextField } from "@mui/material";
 import { businessSchema } from "./forSchema";
 import { useAppDispatch } from "../../../../hooks/hook";
 import { showSnackbar } from "../../../../redux/states/snackbarSlice";
@@ -9,6 +9,7 @@ import {
 } from "../../../../models/business.interface";
 import { createBusiness } from "../../services/businessService";
 import { useBusinessContext } from "../../context/useBusinessContext";
+import "./formComponent.css";
 
 interface FormValues {
   name: string;
@@ -18,19 +19,6 @@ interface FormValues {
   role: string;
 }
 
-// const initialState: Business = {
-//   id: "",
-//   name: "",
-//   tag: "",
-//   email: "",
-// };
-
-// interface BusinessFormProps {
-//   business: Business | null;
-//   onSave: (business: Business) => void;
-//   onCancel: () => void;
-// }
-
 function BusinessForm({ onCancel }: { onCancel: () => void }) {
   const dispatch = useAppDispatch();
   const { refreshBusinesses } = useBusinessContext();
@@ -39,7 +27,6 @@ function BusinessForm({ onCancel }: { onCancel: () => void }) {
     values: FormValues,
     actions: FormikHelpers<FormValues>
   ) => {
-    console.log(values);
     const business: CreateBusiness = {
       name: values.name,
       email: values.email,
@@ -67,108 +54,93 @@ function BusinessForm({ onCancel }: { onCancel: () => void }) {
     }
   };
 
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: "business",
+    },
+    validationSchema: businessSchema,
+    onSubmit: handleSubmit,
+  });
+
   return (
-    <>
-      <Formik
-        initialValues={{
-          name: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          role: "business",
-        }}
-        validationSchema={businessSchema}
-        onSubmit={handleSubmit}
-      >
-        {(props) => (
-          <Form>
-            <div className="register-form-group">
-              <Field
-                type="text"
-                name="name"
-                placeholder="Nombre del negocio"
-                onBlur={props.handleBlur}
-                className={`register-input ${
-                  props.errors.name && props.touched.name ? "error" : ""
-                }`}
-              />
-              {props.errors.name && props.touched.name && (
-                <div className="register-error-message">
-                  {props.errors.name}
-                </div>
-              )}
-            </div>
-            <div className="register-form-group">
-              <Field
-                type="email"
-                name="email"
-                placeholder="Correo Electrónico"
-                onBlur={props.handleBlur}
-                className={`register-input ${
-                  props.errors.email && props.touched.email ? "error" : ""
-                }`}
-              />
-              {props.errors.email && props.touched.email && (
-                <div className="register-error-message">
-                  {props.errors.email}
-                </div>
-              )}
-            </div>
-            <div className="register-form-group">
-              <Field
-                type="password"
-                name="password"
-                placeholder="Contraseña"
-                onBlur={props.handleBlur}
-                className={`register-input ${
-                  props.errors.password && props.touched.password ? "error" : ""
-                }`}
-              />
-              {props.errors.password && props.touched.password && (
-                <div className="register-error-message">
-                  {props.errors.password}
-                </div>
-              )}
-            </div>
-            <div className="register-form-group">
-              <Field
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirmar contraseña"
-                onBlur={props.handleBlur}
-                className={`register-input ${
-                  props.errors.confirmPassword && props.touched.confirmPassword
-                    ? "error"
-                    : ""
-                }`}
-              />
-              {props.errors.confirmPassword &&
-                props.touched.confirmPassword && (
-                  <div className="register-error-message">
-                    {props.errors.confirmPassword}
-                  </div>
-                )}
-            </div>
-            <div className="business-form-buttons">
-              <Button
-                variant="text"
-                onClick={() => onCancel()}
-                className="business-form-cancel"
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                className="business-form-save"
-              >
-                Guardar
-              </Button>
-            </div>
-          </Form>
-        )}
-      </Formik>
-    </>
+    <form onSubmit={formik.handleSubmit}>
+      <div className="business-form-group">
+        <TextField
+          fullWidth
+          className="business-input"
+          label="Nombre del negocio"
+          name="name"
+          value={formik.values.name}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.name && Boolean(formik.errors.name)}
+          helperText={formik.touched.name && formik.errors.name}
+        />
+      </div>
+      <div className="business-form-group">
+        <TextField
+          fullWidth
+          className="business-input"
+          label="Correo Electrónico"
+          name="email"
+          value={formik.values.email}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.email && Boolean(formik.errors.email)}
+          helperText={formik.touched.email && formik.errors.email}
+        />
+      </div>
+      <div className="business-form-group">
+        <TextField
+          fullWidth
+          className="business-input"
+          type="password"
+          name="password"
+          placeholder="Contraseña"
+          onBlur={formik.handleBlur}
+          error={formik.touched.password && Boolean(formik.errors.password)}
+          helperText={formik.touched.password && formik.errors.password}
+        />
+      </div>
+      <div className="business-form-group">
+        <TextField
+          fullWidth
+          className="business-input"
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirmar contraseña"
+          onBlur={formik.handleBlur}
+          error={
+            formik.touched.confirmPassword &&
+            Boolean(formik.errors.confirmPassword)
+          }
+          helperText={
+            formik.touched.confirmPassword && formik.errors.confirmPassword
+          }
+        />
+      </div>
+
+      <div className="business-form-buttons">
+        <Button
+          variant="text"
+          onClick={() => onCancel()}
+          className="business-form-cancel"
+        >
+          Cancelar
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          className="business-form-save"
+        >
+          Guardar
+        </Button>
+      </div>
+    </form>
   );
 }
 

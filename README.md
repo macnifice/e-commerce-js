@@ -105,11 +105,36 @@ npm run create:db
 # Ejecutar migraciones
 npm run migrate
 
+# Opcionalmente, puedes cargar datos de prueba con
+npm run seed
+
 # Iniciar el servidor en modo desarrollo
 npm run dev
 ```
 
-El servidor backend ahora estará corriendo en `http://localhost:3002`
+El servidor backend ahora estará corriendo en `http://localhost:{PORT}`
+
+### Usuarios de prueba
+
+Después de ejecutar los seeders (`npm run seed`), tendrás acceso a los siguientes usuarios:
+
+**Administrador:**
+
+- Existe 1 usuario administrador que puede crear tiendas
+- email: admin@admin.com | password: 123qwe123qwe
+- Los usuarios administradores solo pueden ser creados directamente en la base de datos
+
+**Tiendas:**
+
+- Hay 3 tiendas preconfiguradas que pueden crear y gestionar productos
+- email: tienda@tienda.com | password: 123qwe123qwe
+- email: mini@mini.com | password: 123qwe123qwe
+- email: super@super.com | password: 123qwe123qwe
+- Cada tienda es independiente y solo puede administrar sus propios productos
+
+**Clientes:**
+
+- Para acceder como cliente, es necesario registrarse desde la aplicación
 
 4. **Configurar el Frontend**
 
@@ -126,7 +151,7 @@ cp .env.example .env
 Edita el archivo `.env` con la URL del backend:
 
 ```
-VITE_API_URL=http://localhost:3002
+VITE_API_URL=http://localhost:{PORT}/api/v1
 ```
 
 5. **Iniciar el Frontend**
@@ -151,6 +176,8 @@ La aplicación frontend ahora estará disponible en `http://localhost:5173`
 
 La documentación de la API está disponible a través de Swagger en la ruta `/api-docs` del backend cuando el servidor esté corriendo.
 
+> **Nota sobre autenticación:** Por razones de seguridad, el token JWT se almacena en una cookie HTTP-only. Debido a esta implementación, Swagger no podrá acceder automáticamente a esta cookie. Para probar endpoints protegidos en Swagger, necesitarás copiar manualmente el token de autenticación y agregarlo en la sección de autorización.
+
 ## Comandos útiles
 
 ### Backend
@@ -158,8 +185,11 @@ La documentación de la API está disponible a través de Swagger en la ruta `/a
 - `npm run dev`: Inicia el servidor en modo desarrollo
 - `npm run build`: Compila el proyecto TypeScript
 - `npm start`: Inicia el servidor en producción
+- `npm run create:db`: Crea la base de datos en PostgreSQL
 - `npm run migrate`: Ejecuta las migraciones de base de datos
 - `npm run down`: Revierte la última migración
+- `npm run down:all`: Revierte todas las migraciones
+- `npm run seed`: Carga los datos de prueba en la base de datos
 
 ### Frontend
 

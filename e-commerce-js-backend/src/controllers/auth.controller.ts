@@ -41,9 +41,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             name,
             role
         });
-        // console.log(authData);
 
-        console.log('breackpoint 1');
         if (!authData) {
             res.status(409).json({ message: "El email ya está registrado" });
             return;
@@ -151,8 +149,6 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
             });
             return;
         }
-
-        console.log(`new tokens ${tokens}`);
 
         // Eliminar cookies
         res.clearCookie("token");

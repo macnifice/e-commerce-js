@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Pagination,
-  PaginationItem,
-  Paper,
-  Chip,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
+import { Box, Pagination, PaginationItem, Paper } from "@mui/material";
+import { AssignmentReturn } from "@mui/icons-material";
 import {
   DataGrid,
+  GridActionsCellItem,
   GridColDef,
   gridPageCountSelector,
   gridPageSelector,
@@ -17,19 +11,18 @@ import {
   useGridApiContext,
   useGridSelector,
 } from "@mui/x-data-grid";
-import { Visibility, CheckCircle, Cancel } from "@mui/icons-material";
-import {
-  Order,
-  OrderResponse,
-  OrderStatus,
-} from "../interfaces/order.interface";
 import {
   getOrdersByBusinessId,
   updateOrderStatus,
 } from "../services/orderService";
-import { useAppSelector, useAppDispatch } from "../../../hooks/hook";
-import { showSnackbar } from "../../../redux/states/snackbarSlice";
+import { useAppDispatch, useAppSelector } from "../../../hooks/hook";
 import "../orders.css";
+import {
+  CustomerOrderResponse,
+  OrderBusinessItemResponse,
+  OrderStatus,
+} from "../../../models/orders.interface";
+import { showSnackbar } from "../../../redux/states/snackbarSlice";
 
 function CustomPagination() {
   const apiRef = useGridApiContext();
@@ -86,202 +79,145 @@ function QuickSearchToolbar() {
   );
 }
 
-interface OrdersTableProps {
-  onSelectOrder: (id: string) => void;
-}
+const PAGE_SIZE = 10;
 
-const PAGE_SIZE = 5;
-
-const OrdersTable: React.FC<OrdersTableProps> = ({ onSelectOrder }) => {
+const OrdersTable: React.FC = () => {
   const [paginationModel, setPaginationModel] = useState({
     pageSize: PAGE_SIZE,
     page: 0,
   });
   const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [orders, setOrders] = useState<OrderBusinessItemResponse[]>([]);
 
-  useEffect(() => {
-    if (user) {
-      setLoading(true);
-      getOrdersByBusinessId(user.id.toString()).then(
-        (response: OrderResponse) => {
-          if (response.success && Array.isArray(response.data)) {
-            setOrders(response.data);
-          } else {
-            setOrders([]);
-            dispatch(
-              showSnackbar({
-                message: response.message || "Error al cargar órdenes",
-                severity: "error",
-              })
-            );
-          }
-          setLoading(false);
-        }
-      );
-    }
-  }, [user, dispatch]);
+  const getRowClassName = (params: { row: OrderBusinessItemResponse }) => {
+    const status = params.row.purchaseOrder?.statusId;
+    if (status === OrderStatus.POR_PAGAR) return "order-pending";
+    if (status === OrderStatus.PAGADA) return "order-paid";
+    if (status === OrderStatus.DEVUELTA) return "order-returned";
+    if (status === OrderStatus.CANCELADA) return "order-cancelled";
+    return "";
+  };
 
-  const handleUpdateStatus = async (
-    orderId: string,
-    newStatus: OrderStatus
-  ) => {
-    try {
-      const response = await updateOrderStatus(orderId, newStatus);
-
-      if (response.success) {
-        setOrders(
-          orders.map((order) =>
-            order.id === orderId ? { ...order, status: newStatus } : order
-          )
-        );
-
-        dispatch(
-          showSnackbar({
-            message: "Estado de la orden actualizado correctamente",
-            severity: "success",
-          })
-        );
-      } else {
-        dispatch(
-          showSnackbar({
-            message: response.message || "Error al actualizar el estado",
-            severity: "error",
-          })
-        );
+  const handleReturnOrder = async (id: string) => {
+    const order = orders.find((order) => Number(order.id) === Number(id));
+    const response = await updateOrderStatus(id, OrderStatus.DEVUELTA);
+    if (response.status === 200) {
+      if (order) {
+        order.purchaseOrder.statusId = OrderStatus.DEVUELTA;
+        setOrders([...orders, order]);
       }
-    } catch (error) {
-      console.error("Error al actualizar el estado de la orden:", error);
       dispatch(
         showSnackbar({
-          message: "Error al actualizar el estado de la orden",
+          message: "Orden devuelta correctamente",
+          severity: "success",
+        })
+      );
+    } else {
+      dispatch(
+        showSnackbar({
+          message: "Error al devolver la orden",
           severity: "error",
         })
       );
     }
   };
 
-  //   const formatDate = (dateString: string) => {
-  //     const date = new Date(dateString);
-  //     return new Intl.DateTimeFormat("es-ES", {
-  //       day: "2-digit",
-  //       month: "2-digit",
-  //       year: "numeric",
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //     }).format(date);
-  //   };
-
-  const renderStatus = (status: OrderStatus) => {
-    let color: string = "";
-    let label: string = "";
-
-    switch (status) {
-      case OrderStatus.PENDING:
-        color = "warning";
-        label = "Pendiente";
-        break;
-      case OrderStatus.PROCESSING:
-        color = "info";
-        label = "En proceso";
-        break;
-      case OrderStatus.COMPLETED:
-        color = "success";
-        label = "Completada";
-        break;
-      case OrderStatus.CANCELLED:
-        color = "error";
-        label = "Cancelada";
-        break;
-      default:
-        color = "default";
-        label = status;
+  useEffect(() => {
+    if (user) {
+      getOrdersByBusinessId(user.id.toString()).then(
+        (response: CustomerOrderResponse) => {
+          if (Array.isArray(response.data)) {
+            setOrders(response.data);
+          } else {
+            setOrders([]);
+          }
+        }
+      );
     }
-
-    return <Chip size="small" label={label} color={color as "warning" | "info" | "success" | "error" | "default"} />;
-  };
+  }, [user]);
 
   const columns: GridColDef[] = [
     {
-      field: "id",
-      headerName: "ID",
-      width: 100,
-    },
-    {
-      field: "customerName",
-      headerName: "Cliente",
-      flex: 1,
-      minWidth: 150,
-    },
-    {
-      field: "orderDate",
+      field: "createdAt",
       headerName: "Fecha",
       flex: 1,
-      minWidth: 150,
+      minWidth: 200,
+      renderCell: (params) => {
+        return new Date(params.value).toLocaleString("es-MX");
+      },
     },
     {
-      field: "totalAmount",
-      headerName: "Total",
+      field: "purchaseOrder.user",
+      headerName: "Cliente",
       flex: 1,
-      minWidth: 120,
+      minWidth: 200,
+      renderCell: (params) => {
+        const user = params.row.purchaseOrder?.user;
+        return user ? `${user.name} - (${user.email})` : "Sin cliente";
+      },
     },
     {
-      field: "status",
+      field: "product.name",
+      headerName: "Producto",
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params) => {
+        return params.row.product?.name || "Sin producto";
+      },
+    },
+    {
+      field: "price",
+      headerName: "Precio",
+      flex: 1,
+      minWidth: 100,
+      renderCell: (params) => {
+        return params.value.toLocaleString("es-MX", {
+          style: "currency",
+          currency: "MXN",
+        });
+      },
+    },
+    {
+      field: "purchaseOrder.statusId",
       headerName: "Estado",
       flex: 1,
-      minWidth: 150,
-      renderCell: (params) => renderStatus(params.value as OrderStatus),
+      minWidth: 120,
+      renderCell: (params) => {
+        const status = params.row.purchaseOrder?.statusId;
+        switch (status) {
+          case 1:
+            return "Por pagar";
+          case 2:
+            return "Pagada";
+          case 3:
+            return "Devuelta";
+          case 4:
+            return "Cancelada";
+          default:
+            return "Desconocido";
+        }
+      },
     },
     {
       field: "actions",
+      type: "actions",
       headerName: "Acciones",
       width: 150,
-      renderCell: (params) => {
-        const isCompleted = params.row.status === OrderStatus.COMPLETED;
-        const isCancelled = params.row.status === OrderStatus.CANCELLED;
-
-        return (
-          <Box sx={{ display: "flex" }}>
-            <Tooltip title="Ver detalles">
-              <IconButton
-                size="small"
-                onClick={() => onSelectOrder(params.row.id)}
-              >
-                <Visibility fontSize="small" />
-              </IconButton>
-            </Tooltip>
-
-            {!isCompleted && !isCancelled && (
-              <Tooltip title="Marcar como completada">
-                <IconButton
-                  size="small"
-                  color="success"
-                  onClick={() =>
-                    handleUpdateStatus(params.row.id, OrderStatus.COMPLETED)
-                  }
-                >
-                  <CheckCircle fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
-
-            {!isCompleted && !isCancelled && (
-              <Tooltip title="Cancelar orden">
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() =>
-                    handleUpdateStatus(params.row.id, OrderStatus.CANCELLED)
-                  }
-                >
-                  <Cancel fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
-          </Box>
-        );
+      cellClassName: "actions",
+      getActions: ({ id, row }) => {
+        if (row.purchaseOrder?.statusId === OrderStatus.PAGADA) {
+          return [
+            <GridActionsCellItem
+              icon={<AssignmentReturn />}
+              label="Devolver"
+              onClick={() => handleReturnOrder(id.toString())}
+              color="primary"
+              showInMenu={false}
+            />,
+          ];
+        }
+        return [];
       },
     },
   ];
@@ -297,8 +233,39 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ onSelectOrder }) => {
         disableColumnSelector
         disableDensitySelector
         slots={{ toolbar: QuickSearchToolbar, pagination: CustomPagination }}
-        loading={loading}
-        sx={{ border: 0 }}
+        initialState={{
+          sorting: {
+            sortModel: [{ field: "statusId", sort: "desc" }],
+          },
+        }}
+        getRowClassName={getRowClassName}
+        sx={{
+          border: 0,
+          "& .order-pending": {
+            backgroundColor: "rgba(255, 193, 7, 0.15)",
+            "&:hover": {
+              backgroundColor: "rgba(255, 193, 7, 0.25)",
+            },
+          },
+          "& .order-paid": {
+            backgroundColor: "rgba(46, 125, 50, 0.15)",
+            "&:hover": {
+              backgroundColor: "rgba(46, 125, 50, 0.25)",
+            },
+          },
+          "& .order-returned": {
+            backgroundColor: "rgba(255, 193, 7, 0.15)",
+            "&:hover": {
+              backgroundColor: "rgba(255, 193, 7, 0.25)",
+            },
+          },
+          "& .order-cancelled": {
+            backgroundColor: "rgba(211, 47, 47, 0.15)",
+            "&:hover": {
+              backgroundColor: "rgba(211, 47, 47, 0.25)",
+            },
+          },
+        }}
       />
     </Paper>
   );

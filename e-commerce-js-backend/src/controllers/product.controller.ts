@@ -29,8 +29,7 @@ export const getProductsByBusinessId = async (req: Request, res: Response): Prom
             res.status(400).send("ID de negocio requerido");
             return;
         }
-        const products = await getByBusinessId(id);
-        console.log(products);
+        const products = await getByBusinessId(id); 
         res.status(200).send(products);
     } catch (error: any) {
         res.status(500).send(error.message || "Error al obtener productos");

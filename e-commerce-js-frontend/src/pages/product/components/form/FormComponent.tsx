@@ -1,11 +1,11 @@
 import { useFormik } from "formik";
 import { Button, TextField } from "@mui/material";
 import { productSchema } from "./forSchema";
-import "../../../product/product.css";
 import { CreateProduct } from "../../../../models/product.interface";
 import { createProduct } from "../../services/procutService";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/hook";
 import { showSnackbar } from "../../../../redux/states/snackbarSlice";
+import "../../../product/components/form/formComponent.css";
 
 function ProductForm({ onCancel }: { onCancel: () => void }) {
   const user = useAppSelector((state) => state.auth.user);
@@ -124,7 +124,7 @@ function ProductForm({ onCancel }: { onCancel: () => void }) {
       <div className="product-form-buttons">
         <Button
           variant="text"
-          onClick={onCancel}
+          onClick={() => onCancel()}
           className="product-form-cancel"
         >
           Cancelar

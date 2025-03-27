@@ -12,6 +12,7 @@ import RoleGuard from "./components/guards/RoleGuard";
 import ProductPage from "./pages/product/ProductPage";
 import CartPage from "./pages/cart/CartPage";
 import OrdersPage from "./pages/orders/OrdersPage";
+import OrdersCustomerPage from "./pages/orders-customer/OrdersCustomerPage";
 
 function App() {
   return (
@@ -30,10 +31,10 @@ function App() {
 
             {/* Rutas protegidas solo por autenticación */}
             <Route
-              path="/profile"
+              path="/orders-history"
               element={
                 <AuthGuard>
-                  <div>Componente de perfil</div>
+                  <OrdersCustomerPage />
                 </AuthGuard>
               }
             />

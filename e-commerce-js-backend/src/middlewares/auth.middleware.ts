@@ -83,4 +83,36 @@ export const checkRole = (requiredRole: string) => {
 
         next();
     };
-}; 
+};
+
+export const multipleRoles = (roles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const token = req.cookies.token;
+
+        if (!token) {
+            res.status(401).json({
+                message: "Acceso denegado"
+            });
+            return;
+        }
+
+        const tokenData: TokenPayload = verifyToken(token);
+
+        if (!tokenData) {
+            res.status(401).json({
+                message: "Token inválido o expirado"
+            });
+            return;
+        }
+
+        if (!tokenData.role || !roles.includes(tokenData.role)) {
+            res.status(403).json({
+                message: "No tienes permisos para acceder a este recurso"
+            });
+            return;
+        }
+
+        next();
+    }
+}
+

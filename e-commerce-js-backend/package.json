@@ -9,7 +9,8 @@
     "create:db": "npx sequelize-cli db:create",
     "migrate": "npx sequelize-cli db:migrate",
     "down": "npx sequelize-cli db:migrate:undo",
-    "down:all": "npx sequelize-cli db:migrate:undo:all"
+    "down:all": "npx sequelize-cli db:migrate:undo:all",
+    "seed": "npx sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",

@@ -1,12 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import "./cart-page.css";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { removeFromCart, updateQuantity } from "../../redux/states/cartSlice";
+import {
+  clearCart,
+  removeFromCart,
+  updateQuantity,
+} from "../../redux/states/cartSlice";
+import { showSnackbar } from "../../redux/states/snackbarSlice";
+import { CreatePurchaseOrder } from "../../models/cart.interface";
+import { createPurchaseOrder } from "./services/purchaseOrderService";
 
 const CartPage = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector((state) => state.cart.items);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const user = useAppSelector((state) => state.auth.user);
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -25,18 +34,54 @@ const CartPage = () => {
     );
   };
 
-  const subtotal = calculateSubtotal();
-  const shipping = subtotal > 0 ? 4.99 : 0;
-  const total = subtotal + shipping;
+  const subtotal = calculateSubtotal() / 1.16;
+  const IVA = subtotal * 0.16;
+  const total = subtotal + IVA;
 
-  const handleCreateCart = () => {
-    console.log("Crear carrito");
+  const handleCreateCart = async () => {
+    if (isAuthenticated) {
+      const purchaseOrder: CreatePurchaseOrder = {
+        total: total,
+        iva: IVA,
+        subtotal: subtotal,
+        userId: user?.id || 0,
+        statusId: 1,
+        products: cartItems.map((item) => ({
+          id: Number(item.id),
+          quantity: item.quantity,
+          price: item.price,
+          businessId: item.businessId,
+        })),
+      };
+
+      const response = await createPurchaseOrder(purchaseOrder);
+      console.log("response", response);
+      if (response.status === 201) {
+        dispatch(clearCart());
+        dispatch(
+          showSnackbar({
+            message: "Carrito creado correctamente",
+            severity: "success",
+          })
+        );
+      }
+    } else {
+      dispatch(
+        showSnackbar({
+          message: "Debes estar autenticado para crear un carrito",
+          severity: "error",
+        })
+      );
+      navigate("/login");
+    }
+  };
+
+  const handleClearCart = () => {
+    dispatch(clearCart());
   };
 
   return (
     <div className="cart-container">
-      <h1 className="cart-title">Tu Carrito de Compras</h1>
-
       {cartItems.length === 0 ? (
         <div className="empty-cart-card">
           {/* Header */}
@@ -149,8 +194,12 @@ const CartPage = () => {
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               <div className="summary-row">
+                <span>IVA</span>
+                <span>${IVA.toFixed(2)}</span>
+              </div>
+              <div className="summary-row">
                 <span>Envío</span>
-                <span>${shipping.toFixed(2)}</span>
+                <span>Free</span>
               </div>
               <div className="summary-row summary-total">
                 <span>Total</span>
@@ -159,6 +208,16 @@ const CartPage = () => {
 
               <button onClick={handleCreateCart} className="checkout-button">
                 Crear carrito
+              </button>
+
+              <button
+                onClick={() => navigate("/")}
+                className="continue-cart-button"
+              >
+                Seguir comprando
+              </button>
+              <button onClick={handleClearCart} className="clear-cart-button">
+                Vaciar carrito
               </button>
             </div>
           </div>

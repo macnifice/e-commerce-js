@@ -4,7 +4,15 @@ import { db } from "../models";
 
 export const getAll = async (): Promise<Product[]> => {
     try {
-        const products = await db.Product.findAll();
+        const products = await db.Product.findAll({
+            include: [
+                {
+                    model: db.Business,
+                    as: 'business',
+                    attributes: ['id', 'name']
+                }
+            ]
+        });
         return products;
     } catch (error: any) {
         throw new Error(error.message || "Error al obtener productos");

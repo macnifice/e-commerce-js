@@ -20,6 +20,7 @@ const router: Router = Router();
  *               - email
  *               - password
  *               - name
+ *               - role
  *             properties:
  *               email:
  *                 type: string
@@ -28,6 +29,8 @@ const router: Router = Router();
  *               password:
  *                 type: string 
  *                 format: password
+ *                 minLength: 8
+ *                 maxLength: 20
  *                 description: Contraseña del usuario
  *               name:
  *                 type: string
@@ -41,10 +44,56 @@ const router: Router = Router();
  *     responses:
  *       201:
  *         description: Usuario registrado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: ID del usuario registrado
+ *                 name:
+ *                   type: string
+ *                   description: Nombre del usuario
+ *                 email:
+ *                   type: string
+ *                   description: Email del usuario
+ *                 role:
+ *                   type: string
+ *                   description: Rol del usuario
+ *                 isVerified:
+ *                   type: boolean
+ *                   description: Estado de verificación del usuario
  *       400:
  *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
+ *       409:
+ *         description: El email ya está registrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  *       500:
  *         description: Error al registrar usuario
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  */
 router.post('/register', register);
 
@@ -67,16 +116,96 @@ router.post('/register', register);
  *               email:
  *                 type: string
  *                 format: email
+ *                 description: Email del usuario
  *               password:
  *                 type: string
  *                 format: password
+ *                 description: Contraseña del usuario
  *     responses:
  *       200:
  *         description: Login exitoso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: ID del usuario
+ *                     name:
+ *                       type: string
+ *                       description: Nombre del usuario
+ *                     email:
+ *                       type: string
+ *                       description: Email del usuario
+ *                     role:
+ *                       type: string
+ *                       description: Rol del usuario
+ *                     isVerified:
+ *                       type: boolean
+ *                       description: Estado de verificación del usuario
+ *                 token:
+ *                   type: string
+ *                   description: Token de acceso
+ *                 refreshToken:
+ *                   type: string
+ *                   description: Token de refresco
+ *       400:
+ *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  *       401:
  *         description: Credenciales inválidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
+ *       409:
+ *         description: Usuario no verificado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                     isVerified:
+ *                       type: boolean
  *       500:
  *         description: Error al iniciar sesión
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  */
 router.post('/login', login);
 
@@ -89,12 +218,52 @@ router.post('/login', login);
  *     responses:
  *       200:
  *         description: Token refrescado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de éxito
+ *                 token:
+ *                   type: string
+ *                   description: Nuevo token de acceso
+ *                 refreshToken:
+ *                   type: string
+ *                   description: Nuevo token de refresco
+ *       400:
+ *         description: Refresh token no proporcionado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  *       401:
  *         description: Token de refresco inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  *       500:
  *         description: Error al refrescar token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  */
-router.post('/refresh', refresh);
+router.post('/refresh', authMiddleware, refresh);
 
 /**
  * @swagger
@@ -107,10 +276,34 @@ router.post('/refresh', refresh);
  *     responses:
  *       200:
  *         description: Sesión cerrada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de éxito
  *       401:
  *         description: No autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  *       500:
  *         description: Error al cerrar sesión
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensaje de error
  */
 router.post('/logout', authMiddleware, logout);
 

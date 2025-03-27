@@ -5,29 +5,32 @@ export enum OrderStatus {
     CANCELADA = "Cancelada"
 }
 
-export interface OrderProduct {
-    id: string;
-    nombre: string;
-    precio: number;
-    cantidad: number;
-    subtotal: number;
-}
-
 export interface PurchaseOrder {
-    id: string;
-    negocioId: string;
-    usuarioId: string;
-    estatus: OrderStatus;
+    id: number;
     total: number;
-    subtotal: number;
     iva: number;
-    productos: OrderProduct[];
+    subtotal: number;
+    userId: number;
+    statusId: number;
+    products: OrderItem[];
     createdAt: Date;
     updatedAt: Date;
 }
 
 export interface PurchaseOrderCreationAttributes {
-    negocioId: string;
-    usuarioId: string;
-    productos: OrderProduct[];
+    total: number;
+    iva: number;
+    subtotal: number;
+    userId: number;
+    statusId: number;
+    products: OrderItem[];
+}
+
+export interface OrderItem {
+    id: number;
+    quantity: number;
+    price: number;
+    productId: number;
+    businessId: number;
+    purchaseOrderId: number;
 }

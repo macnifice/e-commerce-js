@@ -54,7 +54,6 @@ const verifyToken = (token: string): TokenPayload => {
 
     try {
         const decoded = verify(token, JWT_SECRET) as TokenPayload;
-        console.log(decoded);
         return decoded;
     } catch (error: any) {
         if (error.name === "TokenExpiredError") {

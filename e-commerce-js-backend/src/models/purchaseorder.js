@@ -11,10 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      PurchaseOrder.hasMany(models.PurchaseOrderItem, { foreignKey: 'purchaseOrderId', as: 'purchaseOrderItems' });
-      PurchaseOrder.belongsTo(models.Business, { foreignKey: 'businessId', as: 'business' });
+      // PurchaseOrder.hasMany(models.PurchaseOrderItem, { foreignKey: 'purchaseOrderId', as: 'purchaseOrderItems' });
+      // PurchaseOrder.belongsTo(models.Business, { foreignKey: 'businessId', as: 'business' });
       PurchaseOrder.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
-      PurchaseOrder.belongsTo(models.OrderStatus, { foreignKey: 'statusId', as: 'status' });
+      // PurchaseOrder.belongsTo(models.OrderStatus, { foreignKey: 'statusId', as: 'status' });
     }
   }
   PurchaseOrder.init({
@@ -30,11 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DOUBLE,
       allowNull: false
     },
-    businessId: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    customerId: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false
     },

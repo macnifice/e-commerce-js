@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 
 // Configuración del Refresh Token
 const REFRESH_SECRET = process.env.REFRESH_SECRET || "REFRESH_TOKEN_SECRET";
-const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN || "7d";
 
 // Interfaz para el payload del refresh token
 interface RefreshTokenPayload extends JwtPayload {
@@ -29,7 +28,7 @@ const generateRefreshToken = (userId: string): string => {
 
         // Opciones para el token
         const signOptions: SignOptions = {
-            expiresIn: parseInt(REFRESH_EXPIRES_IN)
+            expiresIn: '7d'
         };
 
         // Generar el token

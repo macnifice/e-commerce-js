@@ -20,14 +20,7 @@ module.exports = {
         type: Sequelize.DOUBLE,
         allowNull: false
       },
-      businessId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Businesses',
-          key: 'id'
-        }
-      },
-      customerId: {
+      userId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Users',

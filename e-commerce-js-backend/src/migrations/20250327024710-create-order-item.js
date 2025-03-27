@@ -9,25 +9,36 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      quantity: {
-        type: Sequelize.INTEGER
-      },
-      subtotal: {
-        type: Sequelize.DOUBLE
-      },
-      purchaseOrderId: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'PurchaseOrders',
-          key: 'id'
-        }
-      },
       productId: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Products',
           key: 'id'
         }
+      },
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      price: {
+        type: Sequelize.DOUBLE,
+        allowNull: false
+      },
+      businessId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Businesses',
+          key: 'id'
+        },
+        allowNull: false
+      },
+      purchaseOrderId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'PurchaseOrders',
+          key: 'id'
+        },
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
