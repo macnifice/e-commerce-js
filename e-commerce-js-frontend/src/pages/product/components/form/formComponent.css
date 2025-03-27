@@ -1,0 +1,37 @@
+.product-form-group {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.product-form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.product-form-cancel {
+  color: #f06292 !important;
+}
+
+.product-form-save {
+  background-color: #f06292 !important;
+  color: white !important;
+}
+
+.product-form-save:hover {
+  background-color: #ec407a !important;
+}
+
+/* Estilos adicionales para los campos de MUI */
+.product-input.MuiTextField-root .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #f06292;
+}
+
+.product-input.MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #f06292;
+}
+
+.product-input.MuiTextField-root .MuiInputLabel-root.Mui-focused {
+  color: #f06292;
+}
