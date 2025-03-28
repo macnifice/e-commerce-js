@@ -55,7 +55,6 @@ const CartPage = () => {
       };
 
       const response = await createPurchaseOrder(purchaseOrder);
-      console.log("response", response);
       if (response.status === 201) {
         dispatch(clearCart());
         dispatch(

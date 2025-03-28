@@ -3,7 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import "./business.css";
 import { useState } from "react";
 import BusinessForm from "./components/form/FormComponent";
-import { BusinessTable } from "./components/TableComponent";
+import { BusinessTable } from "./components/table/TableComponent";
 import { BusinessProvider } from "./context/BusinessContext";
 
 const BusinessPage: React.FC = () => {

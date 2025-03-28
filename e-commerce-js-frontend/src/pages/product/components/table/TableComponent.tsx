@@ -1,5 +1,12 @@
-import React, { useEffect } from "react";
-import { Box, Pagination, PaginationItem, Paper, Typography, Stack } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Pagination,
+  PaginationItem,
+  Paper,
+  Typography,
+  Stack,
+} from "@mui/material";
 import {
   DataGrid,
   GridActionsCellItem,
@@ -11,10 +18,8 @@ import {
   useGridSelector,
 } from "@mui/x-data-grid";
 import { Edit, Delete } from "@mui/icons-material";
-import { Product, ProductResponse } from "../../../models/product.interface";
-import { getProductByBusinessId } from "../services/procutService";
-import { useAppSelector } from "../../../hooks/hook";
-// import { getBusinesses } from "../services/businessService";
+import { Product } from "../../../../models/product.interface";
+import { useProductContext } from "../../context/useProductContext";
 
 function CustomPagination() {
   const apiRef = useGridApiContext();
@@ -73,37 +78,22 @@ function QuickSearchToolbar() {
 
 const PAGE_SIZE = 5;
 
-export const ProductTable: React.FC = () => {
-  const [paginationModel, setPaginationModel] = React.useState({
+interface ProductTableProps {
+  onEditProduct: (product: Product) => void;
+  onDeleteDialog: (id: number) => void;
+}
+
+export const ProductTable: React.FC<ProductTableProps> = ({
+  onEditProduct,
+  onDeleteDialog,
+}) => {
+  const [paginationModel, setPaginationModel] = useState({
     pageSize: PAGE_SIZE,
     page: 0,
   });
-  const user = useAppSelector((state) => state.auth.user);
-  const [products, setProducts] = React.useState<Product[]>([]);
 
-  // const handleDelete = (id: string) => {
-  //   deleteProduct(id).then((response: ProductResponse) => {
-  //     if (response.status === 200) {
-  //       setProducts(products.filter((product) => product.id !== id));
-  //     }
-  //   });
-  // };
+  const { products } = useProductContext();
 
-  // const handleEdit = (id: string) => {};
-
-  useEffect(() => {
-    if (user) {
-      getProductByBusinessId(user.id).then((response: ProductResponse) => {
-        if (Array.isArray(response.data)) {
-          setProducts(response.data);
-        } else {
-          setProducts([]);
-        }
-      });
-    }
-  }, [user]);
-
-  // Función para determinar el color de la fila según el nivel de stock
   const getRowClassName = (params: { row: Product }) => {
     const stock = params.row.stock;
     if (stock <= 0) return "stock-agotado";
@@ -123,19 +113,19 @@ export const ProductTable: React.FC = () => {
       headerName: "Acciones",
       width: 100,
       cellClassName: "actions",
-      getActions: ({ id }) => {
+      getActions: ({ id, row }) => {
         return [
           <GridActionsCellItem
             icon={<Edit />}
             label="Edit"
             className="textPrimary"
-            onClick={() => console.log(id)}
+            onClick={() => onEditProduct(row)}
             color="inherit"
           />,
           <GridActionsCellItem
             icon={<Delete />}
             label="Delete"
-            onClick={() => console.log(id)}
+            onClick={() => onDeleteDialog(Number(id))}
             color="inherit"
           />,
         ];
@@ -146,22 +136,56 @@ export const ProductTable: React.FC = () => {
   return (
     <>
       <Box sx={{ mb: 2, p: 2, borderRadius: 1, bgcolor: "#f9f9f9" }}>
-        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>Leyenda de inventario:</Typography>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+          Leyenda de inventario:
+        </Typography>
         <Stack direction="row" spacing={3} flexWrap="wrap">
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ width: 16, height: 16, bgcolor: "rgba(46, 204, 113, 0.5)", mr: 1, borderRadius: 1 }} />
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                bgcolor: "rgba(46, 204, 113, 0.5)",
+                mr: 1,
+                borderRadius: 1,
+              }}
+            />
             <Typography variant="body2">Más de 5 productos</Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ width: 16, height: 16, bgcolor: "rgba(241, 196, 15, 0.5)", mr: 1, borderRadius: 1 }} />
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                bgcolor: "rgba(241, 196, 15, 0.5)",
+                mr: 1,
+                borderRadius: 1,
+              }}
+            />
             <Typography variant="body2">5 productos restantes</Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ width: 16, height: 16, bgcolor: "rgba(231, 76, 60, 0.5)", mr: 1, borderRadius: 1 }} />
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                bgcolor: "rgba(231, 76, 60, 0.5)",
+                mr: 1,
+                borderRadius: 1,
+              }}
+            />
             <Typography variant="body2">3 productos restantes</Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ width: 16, height: 16, bgcolor: "rgba(142, 68, 173, 0.5)", mr: 1, borderRadius: 1 }} />
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                bgcolor: "rgba(142, 68, 173, 0.5)",
+                mr: 1,
+                borderRadius: 1,
+              }}
+            />
             <Typography variant="body2">Inventario agotado</Typography>
           </Box>
         </Stack>
@@ -177,9 +201,8 @@ export const ProductTable: React.FC = () => {
           disableDensitySelector
           slots={{ toolbar: QuickSearchToolbar, pagination: CustomPagination }}
           getRowClassName={getRowClassName}
-          sx={{ 
+          sx={{
             border: 0,
-            // Estilos para las diferentes clases de stock
             "& .stock-normal": {
               backgroundColor: "rgba(46, 204, 113, 0.15)",
               "&:hover": {

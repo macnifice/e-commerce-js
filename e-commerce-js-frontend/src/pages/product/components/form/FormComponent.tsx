@@ -1,27 +1,42 @@
 import { useFormik } from "formik";
 import { Button, TextField } from "@mui/material";
 import { productSchema } from "./forSchema";
-import { CreateProduct } from "../../../../models/product.interface";
-import { createProduct } from "../../services/procutService";
+import {
+  CreateOrEditProduct,
+  Product,
+} from "../../../../models/product.interface";
+import { createProduct, updateProduct } from "../../services/procutService";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/hook";
 import { showSnackbar } from "../../../../redux/states/snackbarSlice";
 import "../../../product/components/form/formComponent.css";
+import { useProductContext } from "../../context/useProductContext";
 
-function ProductForm({ onCancel }: { onCancel: () => void }) {
+function ProductForm({
+  onCancel,
+  initialValue,
+  isEditing,
+}: {
+  onCancel: () => void;
+  initialValue?: Product;
+  isEditing: boolean;
+}) {
   const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
+  const { addProduct, updateProductContext } = useProductContext();
   const formik = useFormik({
     initialValues: {
-      name: "",
-      description: "",
-      price: 0,
-      stock: 0,
-      image: "",
+      id: initialValue?.id || undefined,
+      name: initialValue?.name || "",
+      description: initialValue?.description || "",
+      price: initialValue?.price || 0,
+      stock: initialValue?.stock || 0,
+      image: initialValue?.image || "",
       businessId: user?.id || 0,
     },
     validationSchema: productSchema,
     onSubmit: async (values) => {
-      const product: CreateProduct = {
+      const product: CreateOrEditProduct = {
+        id: values.id,
         name: values.name,
         description: values.description,
         price: values.price,
@@ -29,16 +44,31 @@ function ProductForm({ onCancel }: { onCancel: () => void }) {
         image: values.image,
         businessId: user?.id || 0,
       };
-      const response = await createProduct(product);
-      console.log(response);
-      if (response.status === 201) {
-        dispatch(
-          showSnackbar({
-            message: "Producto creado correctamente",
-            severity: "success",
-          })
-        );
-        onCancel();
+
+      if (initialValue && isEditing) {
+        const response = await updateProduct(initialValue?.id, product);
+        if (response.status) {
+          dispatch(
+            showSnackbar({
+              message: "Producto actualizado correctamente",
+              severity: "success",
+            })
+          );
+          updateProductContext(product as Product);
+          onCancel();
+        }
+      } else {
+        const response = await createProduct(product);
+        if (response.status === 201) {
+          dispatch(
+            showSnackbar({
+              message: "Producto creado correctamente",
+              severity: "success",
+            })
+          );
+          addProduct(response.data as Product);
+          onCancel();
+        }
       }
     },
   });
@@ -130,7 +160,7 @@ function ProductForm({ onCancel }: { onCancel: () => void }) {
           Cancelar
         </Button>
         <Button type="submit" variant="contained" className="product-form-save">
-          Guardar
+          {isEditing ? "Actualizar" : "Guardar"}
         </Button>
       </div>
     </form>

@@ -4,9 +4,9 @@ import { Business } from '../../../models/business.interface';
 // Definición del tipo de contexto
 export interface BusinessContextType {
   businesses: Business[];
-  loading: boolean;
-  error: string | null;
-  refreshBusinesses: () => Promise<void>;
+  addBusiness: (business: Business) => Promise<void>;
+  removeBusiness: (id: number) => Promise<void>;
+  updateBusiness: (id: number) => Promise<void>;
 }
 
 // Crear el contexto

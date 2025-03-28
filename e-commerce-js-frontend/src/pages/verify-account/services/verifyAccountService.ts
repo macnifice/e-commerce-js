@@ -4,7 +4,6 @@ import api from "../../../components/services/interceptors";
 export const verifyAccount = async (id: string) => {
     try {
         const response = await api.put(`/user/verify/${id}`);
-        console.log(response);
         return response;
     } catch (error) {
         if (error instanceof AxiosError) {

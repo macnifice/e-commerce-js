@@ -4,6 +4,7 @@ import { businessSchema } from "./forSchema";
 import { useAppDispatch } from "../../../../hooks/hook";
 import { showSnackbar } from "../../../../redux/states/snackbarSlice";
 import {
+  Business,
   BusinessResponse,
   CreateBusiness,
 } from "../../../../models/business.interface";
@@ -21,7 +22,7 @@ interface FormValues {
 
 function BusinessForm({ onCancel }: { onCancel: () => void }) {
   const dispatch = useAppDispatch();
-  const { refreshBusinesses } = useBusinessContext();
+  const { addBusiness } = useBusinessContext();
 
   const handleSubmit = async (
     values: FormValues,
@@ -35,14 +36,15 @@ function BusinessForm({ onCancel }: { onCancel: () => void }) {
     };
     const response: BusinessResponse = await createBusiness(business);
     if (response.status === 201) {
-      actions.resetForm();
-      await refreshBusinesses();
       dispatch(
         showSnackbar({
           message: "Negocio creado correctamente",
           severity: "success",
         })
       );
+      const business = response.data as Business;
+      await addBusiness(business);
+      actions.resetForm();
       onCancel();
     } else {
       dispatch(

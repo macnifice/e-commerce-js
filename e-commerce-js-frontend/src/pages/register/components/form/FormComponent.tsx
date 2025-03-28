@@ -31,7 +31,6 @@ function FormComponent() {
     };
 
     const response = await register(formData);
-    console.log(response);
     if (response) {
       dispatch(
         registerSuccess({

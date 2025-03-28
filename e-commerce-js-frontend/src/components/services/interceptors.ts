@@ -61,36 +61,25 @@ api.interceptors.response.use(
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-        // Si es error 401 (No autorizado) y no hemos intentado refrescar
         if (error.response?.status === 401 && !originalRequest._retry) {
             if (isRefreshing) {
-                // Si ya estamos refrescando, ponemos la solicitud en cola
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
                 })
                     .then(() => {
-                        // No necesitamos modificar headers ya que las cookies se envían automáticamente
                         return api(originalRequest);
                     })
                     .catch((err) => Promise.reject(err));
             }
-
-            // Marcamos que estamos refrescando
             originalRequest._retry = true;
             isRefreshing = true;
 
             try {
-                // Intentamos refrescar el token
                 await refreshToken();
-                // Procesamos la cola con éxito
                 processQueue(null);
-                // Reintentamos la solicitud original
                 return api(originalRequest);
-            } catch (refreshError) {
-                // Si falla el refresh, procesamos la cola con error
-                console.log(refreshError);
+            } catch (refreshError) {;
                 processQueue(refreshError as AxiosError);
-                // Redirigir al login
                 store.dispatch(logout());
                 // window.location.href = '/login';
                 return Promise.reject(refreshError);

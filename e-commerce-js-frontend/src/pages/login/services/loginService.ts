@@ -10,7 +10,6 @@ export const login = async (loginData: Login): Promise<LoginResponse> => {
         return response as LoginResponse;
     } catch (error) {
         if (error instanceof AxiosError) {
-            console.log(error.response);
             return error.response as LoginResponse;
         } else {
             return error as LoginResponse;

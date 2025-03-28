@@ -5,7 +5,6 @@ import { AxiosError } from "axios";
 export const getOrdersByBusinessId = async (businessId: string) => {
   try {
     const response = await api.get(`/purchase-order/business/${businessId}`);
-    console.log(response);
     return response as CustomerOrderResponse;
   } catch (error) {
     if (error instanceof AxiosError) {

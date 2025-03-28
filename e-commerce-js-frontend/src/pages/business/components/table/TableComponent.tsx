@@ -17,7 +17,7 @@ import {
   useGridSelector,
 } from "@mui/x-data-grid";
 import { Edit, Delete } from "@mui/icons-material";
-import { useBusinessContext } from "../context/useBusinessContext";
+import { useBusinessContext } from "../../context/useBusinessContext";
 
 function CustomPagination() {
   const apiRef = useGridApiContext();
@@ -81,9 +81,9 @@ export const BusinessTable: React.FC = () => {
     pageSize: PAGE_SIZE,
     page: 0,
   });
-  const { businesses, loading } = useBusinessContext();
+  const { businesses } = useBusinessContext();
 
-  const columns: GridColDef[] = [  
+  const columns: GridColDef[] = [
     { field: "name", headerName: "Nombre", flex: 1, minWidth: 150 },
     { field: "email", headerName: "Email", flex: 1, minWidth: 200 },
     {
@@ -117,7 +117,6 @@ export const BusinessTable: React.FC = () => {
       <DataGrid
         rows={businesses}
         columns={columns}
-        loading={loading}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[PAGE_SIZE]}

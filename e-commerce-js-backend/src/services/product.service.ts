@@ -48,18 +48,8 @@ export const create = async (product: ProductCreationAttributes): Promise<Produc
 
 export const update = async (id: string, product: ProductUpdateAttributes): Promise<Product> => {
     try {
-        const existProduct = await db.Product.findByPk(id);
-        if (!existProduct) {
-            throw new Error("Producto no encontrado");
-        }
-
-        existProduct.name = product.name;
-        existProduct.description = product.description;
-        existProduct.price = product.price;
-        existProduct.stock = product.stock;
-        existProduct.image = product.image;
-
-        const updatedProduct = await db.Product.update(existProduct, { where: { id: id } });
+        await db.Product.update(product, { where: { id } });
+        const updatedProduct = await db.Product.findByPk(id);
         return updatedProduct;
     } catch (error: any) {
         throw new Error(error.message || "Error al actualizar producto");

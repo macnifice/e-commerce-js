@@ -4,7 +4,6 @@ import { CustomerOrderResponse } from "../../../models/orders.interface";
 export const getOrdersByCustomerId = async (customerId: string) => {
   try {
     const response = await api.get(`/purchase-order/customer/${customerId}`);
-    console.log("response", response);
     return response as CustomerOrderResponse;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -20,7 +19,6 @@ export const getOrdersByCustomerId = async (customerId: string) => {
 export const updateOrderStatus = async (orderId: string, status: number) => {
   try {
     const response = await api.put(`/purchase-order/status/${orderId}`, { status });
-    console.log("response", response);
     return response as CustomerOrderResponse;
   } catch (error) {
     if (error instanceof AxiosError) {

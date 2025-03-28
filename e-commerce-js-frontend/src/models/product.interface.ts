@@ -8,7 +8,8 @@ export interface Product {
     businessId: number;
 }
 
-export interface CreateProduct {
+export interface CreateOrEditProduct {
+    id?: number;
     name: string;
     description: string;
     price: number;
