@@ -210,18 +210,20 @@ const Navbar = () => {
 
   const cartItems = useAppSelector((state) => state.cart.items);
   const renderCart = () => {
-    const itemCount = cartItems.reduce(
-      (count, item) => count + item.quantity,
-      0
-    );
+    if (user?.role === "customer" || user === null) {
+      const itemCount = cartItems.reduce(
+        (count, item) => count + item.quantity,
+        0
+      );
 
-    return (
-      <IconButton color="inherit" component={Link} to="/cart" sx={{ mx: 2 }}>
-        <StyledBadge badgeContent={itemCount} color="error">
-          <ShoppingCartIcon />
-        </StyledBadge>
-      </IconButton>
-    );
+      return (
+        <IconButton color="inherit" component={Link} to="/cart" sx={{ mx: 2 }}>
+          <StyledBadge badgeContent={itemCount} color="error">
+            <ShoppingCartIcon />
+          </StyledBadge>
+        </IconButton>
+      );
+    }
   };
 
   const renderSearch = () => {

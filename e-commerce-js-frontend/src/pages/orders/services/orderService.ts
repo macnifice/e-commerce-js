@@ -19,7 +19,7 @@ export const getOrdersByBusinessId = async (businessId: string) => {
 export const updateOrderStatus = async (orderId: string, status: number) => {
   try {
     const response = await api.put(`/purchase-order/status/${orderId}`, { status });
-    return response.data as CustomerOrderResponse;
+    return response as CustomerOrderResponse;
   } catch (error) {
     if (error instanceof AxiosError) {
       console.error("Error updating order status:", error.response);

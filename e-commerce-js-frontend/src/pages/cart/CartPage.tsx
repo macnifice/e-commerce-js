@@ -9,6 +9,7 @@ import {
 import { showSnackbar } from "../../redux/states/snackbarSlice";
 import { CreatePurchaseOrder } from "../../models/cart.interface";
 import { createPurchaseOrder } from "./services/purchaseOrderService";
+import { useState } from "react";
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const CartPage = () => {
   const cartItems = useAppSelector((state) => state.cart.items);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const user = useAppSelector((state) => state.auth.user);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -39,18 +41,19 @@ const CartPage = () => {
   const total = subtotal + IVA;
 
   const handleCreateCart = async () => {
+    setIsLoading(true);
     if (isAuthenticated) {
       const purchaseOrder: CreatePurchaseOrder = {
         total: total,
         iva: IVA,
         subtotal: subtotal,
         userId: user?.id || 0,
-        statusId: 1,
         products: cartItems.map((item) => ({
           id: Number(item.id),
           quantity: item.quantity,
           price: item.price,
           businessId: item.businessId,
+          statusId: 1,
         })),
       };
 
@@ -63,6 +66,7 @@ const CartPage = () => {
             severity: "success",
           })
         );
+        navigate("/");
       }
     } else {
       dispatch(
@@ -73,6 +77,7 @@ const CartPage = () => {
       );
       navigate("/login");
     }
+    setIsLoading(false);
   };
 
   const handleClearCart = () => {
@@ -205,7 +210,11 @@ const CartPage = () => {
                 <span>${total.toFixed(2)}</span>
               </div>
 
-              <button onClick={handleCreateCart} className="checkout-button">
+              <button
+                disabled={isLoading}
+                onClick={handleCreateCart}
+                className="checkout-button"
+              >
                 Crear carrito
               </button>
 

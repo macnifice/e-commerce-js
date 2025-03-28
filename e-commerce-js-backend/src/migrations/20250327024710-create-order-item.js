@@ -40,6 +40,13 @@ module.exports = {
         },
         allowNull: false
       },
+      statusId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'OrderStatuses',
+          key: 'id'
+        }
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

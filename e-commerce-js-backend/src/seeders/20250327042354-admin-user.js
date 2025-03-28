@@ -39,6 +39,15 @@ module.exports = {
         isVerified: true,
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        name: 'Zack Roylon',
+        email: 'z@ma.com',
+        password: '$2b$10$RyVaAmEiylASrGRMH3hwu.340r58s87lUK34IO791kFwvysRG.jZ6',
+        role: 'customer',
+        isVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ]);
   },

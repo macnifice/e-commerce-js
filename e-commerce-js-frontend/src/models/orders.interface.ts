@@ -38,12 +38,12 @@ export interface OrderBusinessItemResponse {
     purchaseOrderId: number;
     createdAt: string;
     updatedAt: string;
+    statusId: number;
     product: {
       name: string;
     };
     purchaseOrder: {
-      id: number;
-      statusId: number;
+      id: number;  
       userId: number;
       user: {
         name: string;

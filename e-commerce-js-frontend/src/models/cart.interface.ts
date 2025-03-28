@@ -3,7 +3,6 @@ export interface CreatePurchaseOrder {
     iva: number;
     subtotal: number;
     userId: number;
-    statusId: number;
     products: OrderItem[];
 
 }
@@ -13,5 +12,6 @@ export interface OrderItem {
     quantity: number;
     price: number;
     businessId: number;
+    statusId: number;
 }
 

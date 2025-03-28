@@ -22,7 +22,6 @@ export interface PurchaseOrderCreationAttributes {
     iva: number;
     subtotal: number;
     userId: number;
-    statusId: number;
     products: OrderItem[];
 }
 
@@ -33,4 +32,5 @@ export interface OrderItem {
     productId: number;
     businessId: number;
     purchaseOrderId: number;
+    statusId: number;
 }

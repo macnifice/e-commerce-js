@@ -78,7 +78,7 @@ function QuickSearchToolbar() {
   );
 }
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 export const CustomerOrderTable: React.FC = () => {
   const [paginationModel, setPaginationModel] = React.useState({
@@ -118,8 +118,13 @@ export const CustomerOrderTable: React.FC = () => {
     const resp = await updateOrderStatus(id, OrderStatus.PAGADA);
     if (resp.status === 200) {
       if (order) {
-        order.statusId = OrderStatus.PAGADA;
-        setOrders([...orders, order]);
+        setOrders(
+          orders.map((o) =>
+            Number(o.id) === Number(id)
+              ? { ...o, statusId: OrderStatus.PAGADA }
+              : o
+          )
+        );
       }
       dispatch(
         showSnackbar({
@@ -143,8 +148,13 @@ export const CustomerOrderTable: React.FC = () => {
     const resp = await updateOrderStatus(id, OrderStatus.CANCELADA);
     if (resp.status === 200) {
       if (order) {
-        order.statusId = OrderStatus.CANCELADA;
-        setOrders([...orders, order]);
+        setOrders(
+          orders.map((o) =>
+            Number(o.id) === Number(id)
+              ? { ...o, statusId: OrderStatus.CANCELADA }
+              : o
+          )
+        );
       }
       dispatch(
         showSnackbar({
@@ -167,16 +177,40 @@ export const CustomerOrderTable: React.FC = () => {
       field: "createdAt",
       headerName: "Fecha",
       flex: 1,
-      minWidth: 200,
+      minWidth: 100,
+      renderCell(params) {
+        return new Date(params.value).toLocaleString("es-MX");
+      },
+    },
+    {
+      field: "name",
+      headerName: "Articulo",
+      flex: 1,
+      minWidth: 100,
+    },
+    {
+      field: "quantity",
+      headerName: "Cantidad",
+      flex: 1,
+      minWidth: 50,
+    },
+    {
+      field: "price",
+      headerName: "Precio",
+      flex: 1,
+      minWidth: 100,
       renderCell: (params) => {
-        return new Date(params.value).toLocaleString();
+        return params.value.toLocaleString("es-ES", {
+          style: "currency",
+          currency: "MXN",
+        });
       },
     },
     {
       field: "total",
       headerName: "Total",
       flex: 1,
-      minWidth: 100,
+      minWidth: 120,
       renderCell: (params) => {
         return params.value.toLocaleString("es-ES", {
           style: "currency",
@@ -185,28 +219,10 @@ export const CustomerOrderTable: React.FC = () => {
       },
     },
     {
-      field: "subtotal",
-      headerName: "Subtotal",
+      field: "businessName",
+      headerName: "Negocio",
       flex: 1,
-      minWidth: 100,
-      renderCell: (params) => {
-        return params.value.toLocaleString("es-ES", {
-          style: "currency",
-          currency: "MXN",
-        });
-      },
-    },
-    {
-      field: "iva",
-      headerName: "IVA",
-      flex: 1,
-      minWidth: 100,
-      renderCell: (params) => {
-        return params.value.toLocaleString("es-ES", {
-          style: "currency",
-          currency: "MXN",
-        });
-      },
+      minWidth: 200,
     },
     {
       field: "statusId",
@@ -268,7 +284,7 @@ export const CustomerOrderTable: React.FC = () => {
           getRowClassName={getRowClassName}
           initialState={{
             sorting: {
-              sortModel: [{ field: "statusId", sort: "asc" }],
+              sortModel: [{ field: "createdAt", sort: "desc" }],
             },
           }}
           sx={{
@@ -286,9 +302,9 @@ export const CustomerOrderTable: React.FC = () => {
               },
             },
             "& .order-returned": {
-              backgroundColor: "rgba(255, 193, 7, 0.15)",
+              backgroundColor: "rgba(173, 216, 230, 0.15)",
               "&:hover": {
-                backgroundColor: "rgba(255, 193, 7, 0.25)",
+                backgroundColor: "rgba(173, 216, 230, 0.25)",
               },
             },
             "& .order-cancelled": {

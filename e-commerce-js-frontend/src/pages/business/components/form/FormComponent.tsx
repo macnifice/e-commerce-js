@@ -103,6 +103,8 @@ function BusinessForm({ onCancel }: { onCancel: () => void }) {
           type="password"
           name="password"
           placeholder="Contraseña"
+          onChange={formik.handleChange}
+          value={formik.values.password}
           onBlur={formik.handleBlur}
           error={formik.touched.password && Boolean(formik.errors.password)}
           helperText={formik.touched.password && formik.errors.password}
@@ -116,6 +118,8 @@ function BusinessForm({ onCancel }: { onCancel: () => void }) {
           name="confirmPassword"
           placeholder="Confirmar contraseña"
           onBlur={formik.handleBlur}
+          onChange={formik.handleChange}
+          value={formik.values.confirmPassword}
           error={
             formik.touched.confirmPassword &&
             Boolean(formik.errors.confirmPassword)

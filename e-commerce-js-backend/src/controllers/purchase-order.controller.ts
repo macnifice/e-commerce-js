@@ -42,7 +42,7 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
         const { id } = req.params;
         const { status } = req.body;
         const order = await update(id, status);
-        res.status(200).json(order);
+        res.status(200).send(order);
     }
     catch (error: any) {
         res.status(500).json({ message: error.message });

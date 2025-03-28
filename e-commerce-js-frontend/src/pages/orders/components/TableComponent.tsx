@@ -91,7 +91,7 @@ const OrdersTable: React.FC = () => {
   const [orders, setOrders] = useState<OrderBusinessItemResponse[]>([]);
 
   const getRowClassName = (params: { row: OrderBusinessItemResponse }) => {
-    const status = params.row.purchaseOrder?.statusId;
+    const status = params.row.statusId;
     if (status === OrderStatus.POR_PAGAR) return "order-pending";
     if (status === OrderStatus.PAGADA) return "order-paid";
     if (status === OrderStatus.DEVUELTA) return "order-returned";
@@ -104,8 +104,13 @@ const OrdersTable: React.FC = () => {
     const response = await updateOrderStatus(id, OrderStatus.DEVUELTA);
     if (response.status === 200) {
       if (order) {
-        order.purchaseOrder.statusId = OrderStatus.DEVUELTA;
-        setOrders([...orders, order]);
+        setOrders(
+          orders.map((o) =>
+            Number(o.id) === Number(id)
+              ? { ...o, statusId: OrderStatus.DEVUELTA }
+              : o
+          )
+        );
       }
       dispatch(
         showSnackbar({
@@ -142,7 +147,7 @@ const OrdersTable: React.FC = () => {
       field: "createdAt",
       headerName: "Fecha",
       flex: 1,
-      minWidth: 200,
+      minWidth: 100,
       renderCell: (params) => {
         return new Date(params.value).toLocaleString("es-MX");
       },
@@ -179,12 +184,18 @@ const OrdersTable: React.FC = () => {
       },
     },
     {
+      field: "quantity",
+      headerName: "Cantidad",
+      flex: 1,
+      minWidth: 50,
+    },
+    {
       field: "purchaseOrder.statusId",
       headerName: "Estado",
       flex: 1,
       minWidth: 120,
       renderCell: (params) => {
-        const status = params.row.purchaseOrder?.statusId;
+        const status = params.row.statusId;
         switch (status) {
           case 1:
             return "Por pagar";
@@ -206,7 +217,7 @@ const OrdersTable: React.FC = () => {
       width: 150,
       cellClassName: "actions",
       getActions: ({ id, row }) => {
-        if (row.purchaseOrder?.statusId === OrderStatus.PAGADA) {
+        if (row.statusId === OrderStatus.PAGADA) {
           return [
             <GridActionsCellItem
               icon={<AssignmentReturn />}
@@ -235,7 +246,7 @@ const OrdersTable: React.FC = () => {
         slots={{ toolbar: QuickSearchToolbar, pagination: CustomPagination }}
         initialState={{
           sorting: {
-            sortModel: [{ field: "statusId", sort: "desc" }],
+            sortModel: [{ field: "createdAt", sort: "desc" }],
           },
         }}
         getRowClassName={getRowClassName}
@@ -254,9 +265,9 @@ const OrdersTable: React.FC = () => {
             },
           },
           "& .order-returned": {
-            backgroundColor: "rgba(255, 193, 7, 0.15)",
+            backgroundColor: "rgba(173, 216, 230, 0.15)",
             "&:hover": {
-              backgroundColor: "rgba(255, 193, 7, 0.25)",
+              backgroundColor: "rgba(173, 216, 230, 0.25)",
             },
           },
           "& .order-cancelled": {

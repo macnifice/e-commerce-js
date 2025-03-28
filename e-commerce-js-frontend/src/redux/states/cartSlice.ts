@@ -45,7 +45,6 @@ const cartSlice = createSlice({
                 item.quantity = Math.min(quantity, item.stock);
             }
         },
-
         clearCart: (state) => {
             state.items = [];
         }
