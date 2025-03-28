@@ -10,7 +10,7 @@ import { DeleteDialog } from "./components/dialog/DeleteProductDialgoComponent";
 const ProductPage: React.FC = () => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [product, setProduct] = useState<Product>();
+  const [product, setProduct] = useState<Product | undefined>(undefined);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedProductId, setSelectedProductId] = useState<
     number | undefined
@@ -31,6 +31,7 @@ const ProductPage: React.FC = () => {
     if (reason !== "backdropClick") {
       setOpenModal(false);
       setEditMode(false);
+      setProduct(undefined);
     }
   };
 
@@ -54,7 +55,7 @@ const ProductPage: React.FC = () => {
             variant="contained"
             startIcon={<AddIcon />}
             className="business-add-button"
-            onClick={() => handleOpenModal}
+            onClick={() => setOpenModal(true)}
           >
             Añadir Producto
           </Button>

@@ -1,5 +1,6 @@
 import * as React from "react";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
@@ -8,18 +9,21 @@ import { useProductContext } from "../../context/useProductContext";
 import { deleteProduct } from "../../services/procutService";
 import { showSnackbar } from "../../../../redux/states/snackbarSlice";
 import { useAppDispatch } from "../../../../hooks/hook";
+import "./DeleteProductDialog.css"; // Archivo CSS para estilos personalizados
+import { Divider, Box } from "@mui/material";
 
-interface DelteProductProps {
+interface DeleteProductProps {
   onCancel?: () => void;
   productId: number | undefined;
 }
 
-export const DeleteDialog: React.FC<DelteProductProps> = ({
+export const DeleteDialog: React.FC<DeleteProductProps> = ({
   onCancel,
   productId,
 }) => {
   const dispatch = useAppDispatch();
   const { removeProduct } = useProductContext();
+
   const handleDeleteProduct = async () => {
     if (productId) {
       const response = await deleteProduct(productId);
@@ -35,21 +39,39 @@ export const DeleteDialog: React.FC<DelteProductProps> = ({
       if (onCancel) onCancel();
     }
   };
+
   return (
-    <>
-      <DialogTitle id="alert-dialog-title">
-        {"Use Google's location service?"}
+    <Dialog open={true} onClose={onCancel} className="delete-dialog">
+      <DialogTitle className="delete-dialog-title">
+        Confirmar eliminación
       </DialogTitle>
+      <Divider />
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          Let Google help apps determine location. This means sending anonymous
-          location data to Google, even when no apps are running.
+        <DialogContentText className="delete-dialog-content">
+          ¿Estás seguro de que deseas eliminar este producto? Esta acción no se
+          puede deshacer.
         </DialogContentText>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onCancel}>Cancelar</Button>
-        <Button onClick={handleDeleteProduct}>Borrar</Button>
+      <Divider />
+      <DialogActions className="delete-dialog-actions">
+        <Box display="flex" justifyContent="flex-end" width="100%" gap={2}>
+          <Button
+            onClick={onCancel}
+            className="cancel-button"
+            variant="outlined"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleDeleteProduct}
+            className="delete-button"
+            color="error"
+            variant="contained"
+          >
+            Eliminar
+          </Button>
+        </Box>
       </DialogActions>
-    </>
+    </Dialog>
   );
 };
