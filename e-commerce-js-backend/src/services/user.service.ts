@@ -1,5 +1,5 @@
 
-import { db } from "../models/index";
+import { db } from "../models";
 
 export const verify = async (id: string) => {
     try {

@@ -119,9 +119,8 @@ export const update = async (id: string, status: number): Promise<PurchaseOrder>
         }
         const item = await db.OrderItem.findByPk(id);
 
-        if (status === 2) {
-            await adjustProductStock(item.productId, item.quantity, "decrement");
-        } else if (status === 3 || status === 4) {
+
+        if (status === 3 || status === 4) {
             await adjustProductStock(item.productId, item.quantity, "increment");
         }
 
@@ -145,7 +144,7 @@ const adjustProductStock = async (
         }
 
         if (type === "decrement") {
-            
+
             if (product.stock === 0) {
                 return;
             }

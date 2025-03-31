@@ -32,6 +32,7 @@ const VerifyAccount = () => {
             ...userState,
             isVerified: true,
           } as User,
+          isLoading: true,
         })
       );
     }

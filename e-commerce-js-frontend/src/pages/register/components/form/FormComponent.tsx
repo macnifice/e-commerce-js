@@ -36,6 +36,7 @@ function FormComponent() {
         registerSuccess({
           isAuthenticated: false,
           user: response,
+          isLoading: true,
         })
       );
       dispatch(

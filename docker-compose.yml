@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: ecommerce-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123qwe
+      POSTGRES_DB: ecommerce
+
+  backend:
+    build:
+      context: ./e-commerce-js-backend
+      dockerfile: Dockerfile
+    container_name: ecommerce-backend
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      DB_USER: postgres
+      DB_PASSWORD: 123qwe
+      DB_NAME: ecommerce
+      DB_HOST: postgres
+      JWT_SECRET: secret
+      ORIGIN_URL: http://localhost
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./e-commerce-js-frontend
+      dockerfile: Dockerfile
+    container_name: ecommerce-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data: 

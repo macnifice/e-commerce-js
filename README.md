@@ -94,6 +94,7 @@ DB_PASSWORD=tu_password
 DB_NAME=ecommerce
 DB_HOST=localhost
 JWT_SECRET=tu_clave_secreta
+ORIGIN_URL=http://localhost:5173
 ```
 
 3. **Inicializar la base de datos**
@@ -206,3 +207,47 @@ La documentación de la API está disponible a través de Swagger en la ruta `/a
 - El frontend implementa Redux para la gestión de estado global
 - Se utilizan hooks personalizados para lógica reutilizable
 - Material UI proporciona componentes visuales consistentes
+
+## Despliegue con Docker
+
+El proyecto incluye configuración para Docker, lo que facilita su despliegue en cualquier entorno. La implementación de Docker está completamente configurada, incluyendo las migraciones y seeds que se ejecutan automáticamente al iniciar el contenedor.
+
+### Requisitos previos para Docker
+
+- Docker
+- Docker Compose
+
+### Iniciar la aplicación con Docker Compose
+
+```bash
+# Desde la raíz del proyecto
+docker-compose up -d
+```
+
+Este comando construirá e iniciará todos los servicios definidos:
+- PostgreSQL (base de datos)
+- Backend (API Node.js) - Las migraciones y seeders se ejecutan automáticamente al iniciar
+- Frontend (aplicación React)
+
+### Acceder a la aplicación
+
+- Frontend: http://localhost
+- Backend API: http://localhost/api
+- Swagger Docs: http://localhost/api-docs
+
+### Comandos útiles de Docker
+
+```bash
+# Ver los logs de los contenedores
+docker-compose logs -f
+
+# Detener los contenedores
+docker-compose down
+
+# Reconstruir imágenes y contenedores
+docker-compose up -d --build
+```
+
+### Notas sobre configuración
+
+- El backend utiliza la variable de entorno `ORIGIN_URL` para permitir solicitudes desde el frontend. Esta variable está configurada en app.ts para usar el valor de la variable de entorno o, en su defecto, usar http://localhost:5173 como valor predeterminado.
