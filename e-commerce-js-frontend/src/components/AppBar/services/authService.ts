@@ -1,15 +1,21 @@
+import { AxiosError } from 'axios';
 import api from '../../../components/services/interceptors';
-import { logout } from '../../../redux/states/authSlice';
-import { store } from '../../../redux/store';
+import { LogoutResponse } from '../../../models/user.interface';
 
 
 export const logoutUser = async () => {
     try {
-        await api.post('/api/auth/logout');
-
-        store.dispatch(logout());
+        const response = await api.post('/auth/logout');
+        // store.dispatch(logout());
+        console.log('Logout response:', response);
+        return response as LogoutResponse
     } catch (error) {
-        console.error('Error en cierre de sesión:', error);
-        store.dispatch(logout());
+
+        if (error instanceof AxiosError) {
+            return error.response as LogoutResponse;
+
+        } else {
+            return error as LogoutResponse;
+        }
     }
 };

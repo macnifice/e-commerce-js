@@ -4,12 +4,13 @@ import { User } from '../../models/user.interface';
 interface AuthState {
     isAuthenticated: boolean;
     user: User | null;
+    isLoading: boolean;
 }
 
 const initialState: AuthState = {
     isAuthenticated: false,
     user: null,
-
+    isLoading: true,
 };
 
 const authSlice = createSlice({
@@ -35,8 +36,11 @@ const authSlice = createSlice({
             state.user = null;
             localStorage.removeItem('user');
         },
+        setAuthLoaded: (state) => {
+            state.isLoading = false;
+        }
     },
 });
 
-export const { loginSuccess, registerSuccess, verifyAccountSuccess, logout } = authSlice.actions;
+export const { loginSuccess, registerSuccess, verifyAccountSuccess, logout, setAuthLoaded } = authSlice.actions;
 export default authSlice.reducer;

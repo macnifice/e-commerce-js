@@ -15,3 +15,8 @@ export interface OrderItem {
     statusId: number;
 }
 
+export interface CartResponse {
+    status: number;
+    data: object;
+}
+

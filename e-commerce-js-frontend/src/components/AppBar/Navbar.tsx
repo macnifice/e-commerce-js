@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Box,
@@ -34,7 +34,9 @@ import HistoryIcon from "@mui/icons-material/History";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../hooks/hook";
-import { loginSuccess, logout } from "../../redux/states/authSlice";
+import { logout } from "../../redux/states/authSlice";
+import { User } from "../../models/user.interface";
+import { logoutUser } from "./services/authService";
 
 // Tipos para nuestro componente
 interface NavLink {
@@ -119,7 +121,12 @@ const NavbarLogo = styled(Typography)({
   fontWeight: 600,
 });
 
-const Navbar = () => {
+interface NavbarProps {
+  isAuthenticated: boolean;
+  user: User | null;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, user }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
@@ -127,23 +134,6 @@ const Navbar = () => {
 
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        dispatch(
-          loginSuccess({
-            isAuthenticated: true,
-            user: parsedUser,
-          })
-        );
-      }
-    }
-  }, [isAuthenticated, user, dispatch]);
 
   const getNavLinks = (): NavLink[] => {
     const baseLinks: NavLink[] = [
@@ -168,11 +158,13 @@ const Navbar = () => {
 
   // Configurar opciones de menú de usuario según rol
   const getUserMenuItems = (): UserMenuItem[] => {
-    const handleLogout = () => {
-      dispatch(logout());
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      navigate("/login");
+    const handleLogout = async () => {
+      const response = await logoutUser();
+      if (response.status === 200) {
+        dispatch(logout());
+        localStorage.removeItem("user");
+        navigate("/login");
+      }
     };
 
     const baseItems: UserMenuItem[] = [
@@ -454,17 +446,20 @@ const Navbar = () => {
             {!isMobile && renderSearch()}
             {!isMobile && renderCart()}
 
-            {isAuthenticated ? (
-              <Tooltip title="Abrir configuración">
-                <IconButton onClick={handleOpenUserMenu} sx={{ ml: 2, p: 0 }}>
-                  <Avatar sx={{ bgcolor: "#f06292" }}>
-                    {user?.name?.charAt(0).toUpperCase()}
-                  </Avatar>
-                </IconButton>
-              </Tooltip>
-            ) : (
-              !isMobile && renderLoginButton()
-            )}
+            {isAuthenticated
+              ? !isMobile && (
+                  <Tooltip title="Abrir configuración">
+                    <IconButton
+                      onClick={handleOpenUserMenu}
+                      sx={{ ml: 2, p: 0 }}
+                    >
+                      <Avatar sx={{ bgcolor: "#f06292" }}>
+                        {user?.name?.charAt(0).toUpperCase()}
+                      </Avatar>
+                    </IconButton>
+                  </Tooltip>
+                )
+              : !isMobile && renderLoginButton()}
 
             {/* Menú de usuario */}
             <Menu
@@ -490,6 +485,28 @@ const Navbar = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
+              <Box
+                sx={{
+                  px: 2,
+                  mb: 2,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Box>
+                  <Typography variant="subtitle1">
+                    {user?.name}({user?.email})
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{ color: "rgba(255,255,255,0.7)" }}
+                  >
+                    {(user?.role ?? "").charAt(0).toUpperCase() +
+                      (user?.role ?? "").slice(1)}
+                  </Typography>
+                </Box>
+              </Box>
+
               {userMenuItems.map((item) => (
                 <MenuItem
                   key={item.name}

@@ -128,6 +128,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
  */
 export const refresh = async (req: Request, res: Response): Promise<void> => {
     try {
+        console.log("Iniciando Refresh:", req.cookies.refreshToken);
         const refreshToken = req.cookies.refreshToken;
 
         if (!refreshToken) {

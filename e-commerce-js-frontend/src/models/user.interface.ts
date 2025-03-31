@@ -26,3 +26,8 @@ export interface LoginResponse {
     };
 }
 
+export interface LogoutResponse {
+    status: number;
+    data: object;
+}
+

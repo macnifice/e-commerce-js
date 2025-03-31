@@ -41,9 +41,11 @@ const refreshToken = async () => {
     try {
         // Llamamos al endpoint de refresh - no necesitamos enviar el token
         // ya que está en la cookie HTTP-only y se enviará automáticamente
-        await axios.post(import.meta.env.VITE_API_URL + '/auth/refresh', {
-            withCredentials: true
-        });
+        await axios.post(
+            import.meta.env.VITE_API_URL + '/auth/refresh',
+            {},
+            { withCredentials: true }
+        );
         return true;
     } catch (error) {
         // Si falla el refresh, desconectamos al usuario
@@ -52,16 +54,13 @@ const refreshToken = async () => {
     }
 };
 
-// No necesitamos interceptor para agregar tokens en las solicitudes
-// ya que las cookies se envían automáticamente
-
 // Interceptor para manejar errores de respuesta
 api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry || error.response?.status === 403 && !originalRequest._retry) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -75,19 +74,21 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                await refreshToken();
+                console.log('Refreshing token...');
+                const resp = await refreshToken();
+                console.log(resp)
                 processQueue(null);
                 return api(originalRequest);
-            } catch (refreshError) {;
+            } catch (refreshError) {
+                console.error('Error refreshing token:', refreshError);
                 processQueue(refreshError as AxiosError);
                 store.dispatch(logout());
-                // window.location.href = '/login';
+                window.location.href = '/login';
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
             }
         }
-
         // Para otros errores, simplemente los rechazamos
         return Promise.reject(error);
     }

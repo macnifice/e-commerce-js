@@ -1,29 +1,37 @@
-import { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
+import { ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { User } from "../../models/user.interface";
 
 interface RoleGuardProps {
   children: ReactNode;
   allowedRoles: string[];
+  isAuthenticated: boolean;
+  user: User | null;
+  isLoading: boolean;
 }
 
-const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+const RoleGuard = ({
+  children,
+  allowedRoles,
+  isAuthenticated,
+  user,
+  isLoading,
+}: RoleGuardProps) => {
   const location = useLocation();
 
-  // Si no está autenticado, redirigir al login
+  if (isLoading) {
+    return <div className="loading-spinner">Loading...</div>;
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Si está autenticado pero no tiene un rol permitido, redirigir a página de acceso denegado
   if (!user || !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" state={{ from: location }} replace />;
   }
 
-  // Si está autenticado y tiene el rol adecuado, mostrar el contenido
   return <>{children}</>;
 };
 
-export default RoleGuard; 
+export default RoleGuard;

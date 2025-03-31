@@ -13,12 +13,34 @@ import ProductPage from "./pages/product/ProductPage";
 import CartPage from "./pages/cart/CartPage";
 import OrdersPage from "./pages/orders/OrdersPage";
 import OrdersCustomerPage from "./pages/orders-customer/OrdersCustomerPage";
+import { useAppDispatch, useAppSelector } from "./hooks/hook";
+import { useEffect } from "react";
+import { loginSuccess, setAuthLoaded } from "./redux/states/authSlice";
 
 function App() {
+  const { isAuthenticated, user, isLoading } = useAppSelector(
+    (state) => state.auth
+  );
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      dispatch(
+        loginSuccess({
+          isAuthenticated: true,
+          user: parsedUser,
+          isLoading: true,
+        })
+      );
+    }
+    dispatch(setAuthLoaded());
+  }, [dispatch]);
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
-        <Navbar />
+        <Navbar isAuthenticated={isAuthenticated} user={user} />
         <main className="container mx-auto py-4 px-2">
           <Routes>
             {/* Rutas públicas */}
@@ -33,7 +55,10 @@ function App() {
             <Route
               path="/orders-history"
               element={
-                <AuthGuard>
+                <AuthGuard
+                  isAuthenticated={isAuthenticated}
+                  isLoading={isLoading}
+                >
                   <OrdersCustomerPage />
                 </AuthGuard>
               }
@@ -43,7 +68,12 @@ function App() {
             <Route
               path="/products"
               element={
-                <RoleGuard allowedRoles={["business"]}>
+                <RoleGuard
+                  isAuthenticated={isAuthenticated}
+                  user={user}
+                  isLoading={isLoading}
+                  allowedRoles={["business"]}
+                >
                   <ProductPage />
                 </RoleGuard>
               }
@@ -51,7 +81,12 @@ function App() {
             <Route
               path="/orders"
               element={
-                <RoleGuard allowedRoles={["business"]}>
+                <RoleGuard
+                  isAuthenticated={isAuthenticated}
+                  user={user}
+                  isLoading={isLoading}
+                  allowedRoles={["business"]}
+                >
                   <OrdersPage />
                 </RoleGuard>
               }
@@ -60,7 +95,12 @@ function App() {
             <Route
               path="/business"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  isAuthenticated={isAuthenticated}
+                  user={user}
+                  isLoading={isLoading}
+                  allowedRoles={["admin"]}
+                >
                   <BusinessPage />
                 </RoleGuard>
               }

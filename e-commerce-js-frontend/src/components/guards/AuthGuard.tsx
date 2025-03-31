@@ -1,22 +1,28 @@
-import { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
+import { ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 
 interface AuthGuardProps {
   children: ReactNode;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
-const AuthGuard = ({ children }: AuthGuardProps) => {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+const AuthGuard = ({
+  children,
+  isAuthenticated,
+  isLoading,
+}: AuthGuardProps) => {
   const location = useLocation();
 
+  if (isLoading) {
+    return <div className="loading-spinner">Loading...</div>;
+  }
+
   if (!isAuthenticated) {
-    // Redirigir al login si no está autenticado, guardando la ruta de origen
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
 };
 
-export default AuthGuard; 
+export default AuthGuard;

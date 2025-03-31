@@ -6,7 +6,7 @@ import { login } from "../../services/loginService";
 import { loginSuccess } from "../../../../redux/states/authSlice";
 import { useAppDispatch } from "../../../../hooks/hook";
 import { showSnackbar } from "../../../../redux/states/snackbarSlice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface FormValues {
   email: string;
@@ -16,6 +16,9 @@ interface FormValues {
 function FormComponent() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/";
   const handleSubmit = async (
     values: FormValues,
     actions: FormikHelpers<FormValues>
@@ -46,6 +49,7 @@ function FormComponent() {
           loginSuccess({
             isAuthenticated: false,
             user: response.data.user || null,
+            isLoading: true,
           })
         );
         navigate(`/verify-account/${response.data.user?.id}`);
@@ -61,9 +65,10 @@ function FormComponent() {
           loginSuccess({
             isAuthenticated: true,
             user: response.data.user || null,
+            isLoading: true,
           })
         );
-        navigate("/");
+        navigate(from, { replace: true });
         break;
       default:
         dispatch(
@@ -93,9 +98,7 @@ function FormComponent() {
               placeholder="Correo electrónico"
               onBlur={props.handleBlur}
               className={`login-input ${
-                props.errors.email && props.touched.email
-                  ? "error"
-                  : ""
+                props.errors.email && props.touched.email ? "error" : ""
               }`}
             />
             {props.errors.email && props.touched.email && (
@@ -109,9 +112,7 @@ function FormComponent() {
               onBlur={props.handleBlur}
               placeholder="Contraseña"
               className={`login-input ${
-                props.errors.password && props.touched.password
-                  ? "error"
-                  : ""
+                props.errors.password && props.touched.password ? "error" : ""
               }`}
             />
             {props.errors.password && props.touched.password && (
