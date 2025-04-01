@@ -1,0 +1,13 @@
+# .dockerignore
+
+# Ignorar node_modules para evitar que se copien del host
+node_modules
+
+# Ignorar env local
+.env
+.env.example
+
+# Ignorar otras carpetas temporales
+dist
+build
+*.log

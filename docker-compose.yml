@@ -35,6 +35,8 @@ services:
     build:
       context: ./e-commerce-js-frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3002/api/v1
     container_name: ecommerce-frontend
     restart: always
     ports:
